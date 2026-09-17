@@ -13,6 +13,7 @@ build/
 
 # ApprovalTests
 *.received.txt
+.approval_tests_temp/
 
 # Local-only workspace (icon candidates, prompt, etc.)
 # Folders are tracked so you know where to put things; their contents are ignored.
