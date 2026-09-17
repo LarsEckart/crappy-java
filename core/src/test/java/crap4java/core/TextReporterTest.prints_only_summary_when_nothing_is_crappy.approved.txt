@@ -1,0 +1,3 @@
+CRAP report  threshold=1000.0  source=sample-jacoco.xml
+
+methods=30 crappy=0 (0.0%) max=182.0 threshold=1000.0 verdict=OK

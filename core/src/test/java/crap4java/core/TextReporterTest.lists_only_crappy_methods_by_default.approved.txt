@@ -1,0 +1,7 @@
+CRAP report  threshold=30.0  source=sample-jacoco.xml
+
+     CRAP    CC  COV%   METHOD
+    182.0    13   0.0   sample.Uncovered.classify(IILjava/lang/String;)Ljava/lang/String;  Uncovered.java:8
+     42.0     6   0.0   sample.Pipelines.upper(Z)Ljava/util/List;  Pipelines.java:35
+
+methods=30 crappy=2 (6.7%) max=182.0 threshold=30.0 verdict=FAIL

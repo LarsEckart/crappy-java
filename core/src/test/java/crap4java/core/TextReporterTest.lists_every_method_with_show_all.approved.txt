@@ -1,0 +1,35 @@
+CRAP report  threshold=30.0  source=sample-jacoco.xml
+
+     CRAP    CC  COV%   METHOD
+    182.0    13   0.0   sample.Uncovered.classify(IILjava/lang/String;)Ljava/lang/String;  Uncovered.java:8
+     42.0     6   0.0   sample.Pipelines.upper(Z)Ljava/util/List;  Pipelines.java:35
+     16.7     6  33.3   sample.Point.quadrant()I  Point.java:13
+     12.0     3   0.0   sample.Outer$Inner.inner(I)I  Outer.java:25
+     10.8     4  25.0   sample.Calculator.partial(I)I  Calculator.java:21
+     10.4     5  40.0   sample.Pipelines.<init>(Ljava/util/List;)V  Pipelines.java:19
+      6.0     2   0.0   sample.Calculator.overloaded(Ljava/lang/String;)I  Calculator.java:40
+      6.0     2   0.0   sample.Outer$1.run()V  Outer.java:34
+      6.0     2   0.0   sample.Overloads.lambda$map$1(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;  Overloads.java:13
+      5.7     3  33.3   sample.Shape.sides()I  Shape.java:8
+      4.0     4 100.0   sample.Calculator.covered(I)I  Calculator.java:7
+      3.3     3  66.7   sample.Point.<init>(II)V  Point.java:6
+      3.0     3 100.0   sample.Pipelines.<clinit>()V  Pipelines.java:11
+      3.0     3 100.0   sample.Pipelines.countLong()J  Pipelines.java:28
+      2.5     2  50.0   sample.Outer.outerMethod(I)I  Outer.java:12
+      2.5     2  50.0   sample.Outer$Nested.nested(I)I  Outer.java:18
+      2.0     2 100.0   sample.Calculator.overloaded(I)I  Calculator.java:35
+      2.0     1   0.0   sample.Outer.anonymous(I)Ljava/lang/Runnable;  Outer.java:31
+      2.0     1   0.0   sample.Outer$1.<init>(Lsample/Outer;I)V  Outer.java:31
+      2.0     1   0.0   sample.Outer$Inner.<init>(Lsample/Outer;)V  Outer.java:23
+      2.0     2 100.0   sample.Overloads.lambda$map$0(Ljava/lang/Integer;)Ljava/lang/Integer;  Overloads.java:9
+      2.0     1   0.0   sample.Overloads.map(Ljava/util/List;Ljava/lang/String;)Ljava/util/List;  Overloads.java:13
+      2.0     1   0.0   sample.Uncovered.<init>()V  Uncovered.java:4
+      2.0     1   0.0   sample.Uncovered.trivial()I  Uncovered.java:28
+      1.0     1 100.0   sample.Calculator.<init>()V  Calculator.java:3
+      1.0     1 100.0   sample.Outer.<init>(I)V  Outer.java:7
+      1.0     1 100.0   sample.Outer$Nested.<init>()V  Outer.java:16
+      1.0     1 100.0   sample.Overloads.<init>()V  Overloads.java:6
+      1.0     1 100.0   sample.Overloads.map(Ljava/util/List;)Ljava/util/List;  Overloads.java:9
+      1.0     1 100.0   sample.Shape.<clinit>()V  Shape.java:3
+
+methods=30 crappy=2 (6.7%) max=182.0 threshold=30.0 verdict=FAIL
