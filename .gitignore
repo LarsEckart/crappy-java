@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# Gradle
+.gradle/
+build/
+.kotlin/
+
+# ApprovalTests
+*.received.txt
+
+# Local-only workspace (icon candidates, prompt, etc.)
+# Folders are tracked so you know where to put things; their contents are ignored.
+/local/*
+!/local/icons/
+!/local/prompt/
+/local/icons/*
+!/local/icons/.gitignore
+/local/prompt/*
+!/local/prompt/.gitignore
