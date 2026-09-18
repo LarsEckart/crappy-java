@@ -1,4 +1,4 @@
-// Fixture project for crap4java, derived from https://github.com/LarsEckart/bootstrap.
+// Fixture project for crappy-java, derived from https://github.com/LarsEckart/bootstrap.
 // Its only job is to produce a JaCoCo XML report with known edge cases:
 // uncovered/partially/fully covered methods, lambdas (incl. in constructor and static init),
 // inner/nested/anonymous classes, overloads, enum switch, record compact constructor.
@@ -42,7 +42,7 @@ tasks.jacocoTestReport {
     }
 }
 
-// Regenerates the checked-in fixture used by crap4java's tests, with machine-specific session info scrubbed.
+// Regenerates the checked-in fixture used by crappy-java's tests, with machine-specific session info scrubbed.
 tasks.register("copyFixture") {
     group = "build"
     description = "Copies the JaCoCo XML report to core/src/test/resources/sample-jacoco.xml"

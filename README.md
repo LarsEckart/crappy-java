@@ -1,4 +1,4 @@
-# crap4java
+# crappy-java
 
 CRAP (Change Risk Anti-Patterns) analyser for JVM projects, computed entirely from JaCoCo XML reports.
 
@@ -12,27 +12,31 @@ threshold of 30 is the default here.
 
 ## Installation
 
-You need Java 17 or newer and a local clone of this repository. For example, if you named the remote
-`ccrappy-java`:
+You need Java 17 or newer. Apply the published Gradle plugin with normal plugin resolution:
 
-```bash
-git clone <repository-url> crap4java
-cd crap4java
-# optional: rename the remote to match your local convention
-git remote rename origin ccrappy-java
-./gradlew build
+```kotlin
+plugins {
+    java
+    jacoco
+    id("com.larseckart.crappy-java") version "<version>"
+}
 ```
 
-The build produces:
+Use the reusable core library from Maven Central:
 
-- the core library: `core/build/libs/core.jar`
-- the runnable CLI: `cli/build/install/cli/bin/cli`
-- the Gradle plugin: ready for use as an included build (see below)
+```kotlin
+dependencies {
+    implementation("com.larseckart:crappy-java-core:<version>")
+}
+```
+
+For development, clone this repository and run `./gradlew build`. The build also produces the runnable
+CLI at `cli/build/install/crappy-java/bin/crappy-java`.
 
 ## How it works
 
 JaCoCo already computes cyclomatic complexity for every non-abstract method and records how much of
-it tests exercised. crap4java reads the `COMPLEXITY` counter from a JaCoCo XML report and uses
+it tests exercised. crappy-java reads the `COMPLEXITY` counter from a JaCoCo XML report and uses
 
 - `CC = missed + covered`
 - `cov = covered / (missed + covered)`, JaCoCo's complexity coverage, the closest available
@@ -43,7 +47,7 @@ work too, and JaCoCo's filters already remove synthetic methods, Lombok output, 
 try-with-resources noise. It also means complexity is bytecode-level: exceptions do not count,
 string `switch` and enhanced `for` add branches.
 
-javac compiles lambda bodies to separate methods named `lambda$foo$0`. crap4java folds them into
+javac compiles lambda bodies to separate methods named `lambda$foo$0`. crappy-java folds them into
 `foo` by summing counters, so each lambda adds its own baseline complexity of 1 to `foo`. When `foo`
 is overloaded the lambda cannot be attributed and is reported as its own row.
 
@@ -53,12 +57,12 @@ be combined from XML. Merge the exec files instead, with `jacoco-report-aggregat
 
 ## Gradle plugin
 
-The plugin is not published yet. Use it from a checkout with an included build:
+During development, use the plugin from a checkout with an included build:
 
 ```kotlin
 // settings.gradle.kts of your project
 pluginManagement {
-    includeBuild("../crap4java")
+    includeBuild("../crappy-java")
 }
 ```
 
@@ -67,10 +71,10 @@ pluginManagement {
 plugins {
     java
     jacoco
-    id("crap4java")
+    id("com.larseckart.crappy-java")
 }
 
-crap4java {
+crappyJava {
     threshold = 30.0        // default 30; Groovy DSL accepts `threshold = 30`
     failOnViolation = true  // default true
     showAll = false         // default false: list only methods above the threshold
@@ -79,7 +83,7 @@ crap4java {
 ```
 
 `./gradlew crap` runs tests, generates the JaCoCo XML report, prints the CRAP report and writes it
-to `build/reports/crap4java/crap.txt`. The build fails when any method scores above the threshold,
+to `build/reports/crappy-java/crap.txt`. The build fails when any method scores above the threshold,
 and also when a configured report file is missing, so a typo or a module without tests cannot turn
 the gate green. To make it part of `check`, add `tasks.check { dependsOn("crap") }`.
 
@@ -87,7 +91,7 @@ Only the standard `test` task and its `jacocoTestReport` are wired. For other te
 the `jacoco` plugin, point the task at report files yourself:
 
 ```kotlin
-tasks.named<crap4java.gradle.CrapTask>("crap") {
+tasks.named<crappyjava.gradle.CrapTask>("crap") {
     reports.setFrom("path/to/jacoco.xml", "another/module/jacoco.xml")
     threshold.set(10.0)   // the task property is a plain Property<Double>; the extension also takes integers
 }
@@ -97,7 +101,7 @@ tasks.named<crap4java.gradle.CrapTask>("crap") {
 
 ```bash
 ./gradlew :cli:installDist
-cli/build/install/cli/bin/cli [--threshold <n>] [--all | --top <n>] <jacoco.xml>...
+cli/build/install/crappy-java/bin/crappy-java [--threshold <n>] [--all | --top <n>] <jacoco.xml>...
 ```
 
 | Option | Meaning |
@@ -138,3 +142,22 @@ Modules: `core` (analysis library, no dependencies), `cli`, `gradle-plugin`.
 `test-fixtures/sample` is a standalone Gradle project whose JaCoCo report is checked in as the
 test fixture. Regenerate it with `./gradlew -p test-fixtures/sample copyFixture`. See `PLAN.md` for
 the design decisions.
+
+## Releasing
+
+Publish a GitHub release tagged `v<version>`. The release workflow builds the project, validates the
+Plugin Portal upload, publishes signed `crappy-java-core` artifacts to Maven Central, waits for them to resolve,
+then publishes and smoke-tests the plugin.
+
+Add these GitHub repository secrets before the first release:
+
+- `MAVEN_CENTRAL_USERNAME` and `MAVEN_CENTRAL_PASSWORD`: a Maven Central **user token**, not your
+  Central Portal sign-in.
+- `SIGNING_IN_MEMORY_KEY`: an ASCII-armored private PGP key from
+  `gpg --export-secret-keys --armor <key-id>`.
+- `SIGNING_IN_MEMORY_KEY_PASSWORD`: the private key passphrase.
+- `GRADLE_PUBLISH_KEY` and `GRADLE_PUBLISH_SECRET`: Gradle Plugin Portal API credentials.
+
+To repeat the final check after a Portal release, run
+`./scripts/smoke-released-plugin.sh <version>`. It creates a temporary Gradle project with no
+`pluginManagement` block, so it uses the default Plugin Portal resolution path.

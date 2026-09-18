@@ -5,6 +5,13 @@ plugins {
     base
 }
 
+val releaseVersion = providers.gradleProperty("releaseVersion").orElse("0.1.0-SNAPSHOT")
+
+allprojects {
+    group = "com.larseckart"
+    version = releaseVersion.get()
+}
+
 // Dogfooding: run our own CLI over the JaCoCo reports of our own modules.
 // Module names and report paths are spelled out so the root never touches subproject models
 // (isolated-projects friendly); string task paths are allowed.
@@ -26,9 +33,9 @@ val modules = listOf("core", "cli", "gradle-plugin")
 
 tasks.register<JavaExec>("crap") {
     group = "verification"
-    description = "CRAP report for crap4java's own modules (exit 2 fails the build)."
+    description = "CRAP report for crappy-java's own modules (exit 2 fails the build)."
     classpath = crapCli.get()
-    mainClass = "crap4java.cli.Main"
+    mainClass = "crappyjava.cli.Main"
     workingDir = layout.projectDirectory.asFile
     val reports = modules.map { "$it/build/reports/jacoco/test/jacocoTestReport.xml" }
     modules.forEach { dependsOn(":$it:jacocoTestReport") }

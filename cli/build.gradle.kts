@@ -10,7 +10,8 @@ java {
 }
 
 application {
-    mainClass = "crap4java.cli.Main"
+    applicationName = "crappy-java"
+    mainClass = "crappyjava.cli.Main"
 }
 
 dependencies {
@@ -29,7 +30,7 @@ tasks.withType<JavaCompile>().configureEach {
 
 tasks.test {
     useJUnitPlatform()
-    systemProperty("crap4java.fixture", layout.projectDirectory.file("../core/src/test/resources/sample-jacoco.xml").asFile.path)
+    systemProperty("crappyjava.fixture", layout.projectDirectory.file("../core/src/test/resources/sample-jacoco.xml").asFile.path)
     finalizedBy(tasks.jacocoTestReport)
 }
 

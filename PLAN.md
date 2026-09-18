@@ -1,4 +1,4 @@
-# crap4java — Plan
+# crappy-java — Plan
 
 A CRAP (Change Risk Anti-Patterns) analyser for JVM projects, computed entirely
 from JaCoCo XML reports.
@@ -19,7 +19,7 @@ Inspiration: https://github.com/unclebob/crap4java (CLI shape, exit codes, repor
 | Language | Java 17, zero runtime dependencies. StAX for XML. |
 | Lambdas | Fold `lambda$foo$N` into `foo` when `foo` is unambiguous in the class, otherwise report the lambda as its own row. |
 | Output | Console text only, designed to be read by an AI agent: deterministic, plain ASCII, no colours, compact. |
-| Publishing | Local only. Name stays `crap4java`. |
+| Publishing | `core` goes to Maven Central as `com.larseckart:crappy-java-core`; the Gradle plugin goes only to the Plugin Portal as `com.larseckart.crappy-java`. |
 | Not in v1 | JSON/HTML reports, `--changed` git mode, exclusion globs, baseline/ratchet mode, CRAP load, Maven plugin, aggregation across modules. |
 
 ## Why JaCoCo-only
@@ -69,8 +69,8 @@ Gradle multi-project, Java 17 toolchain, JUnit 5.
 
 ### cli
 
-    crap4java [--threshold <n>] [--all] [--top <n>] <jacoco.xml>...
-    crap4java --help
+    crappy-java [--threshold <n>] [--all] [--top <n>] <jacoco.xml>...
+    crappy-java --help
 
 - default: print methods with `crap > threshold`, then summary
 - `--all`: print every method
@@ -80,12 +80,12 @@ Gradle multi-project, Java 17 toolchain, JUnit 5.
 
 ### gradle-plugin
 
-- plugin id `crap4java`, applies nothing itself but reacts to the `jacoco` plugin
+- plugin id `com.larseckart.crappy-java`, applies nothing itself but reacts to the `jacoco` plugin
 - sets `jacocoTestReport.reports.xml.required = true`
 - registers task `crap` (type `CrapTask`, `dependsOn(jacocoTestReport)`):
   inputs: XML report file(s), threshold, `failOnViolation`, `showAll`, `top`;
-  output: the text report to console and to `build/reports/crap4java/crap.txt`
-- extension `crap4java { threshold.set(30.0); failOnViolation.set(true) }`
+  output: the text report to console and to `build/reports/crappy-java/crap.txt`
+- extension `crappyJava { threshold.set(30.0); failOnViolation.set(true) }`
 - not wired into `check` by default; users add `tasks.check { dependsOn("crap") }`
 - multi-module: point `reports` at several XML files, or at the aggregation plugin's output. Aggregation itself is out of scope.
 
@@ -120,7 +120,7 @@ Unicode, no ANSI. Method identity is fully qualified so an agent can jump to it.
 - `cli`: tests call `main` with the fixture XML and assert output and exit code.
 - `gradle-plugin`: Gradle TestKit functional test that runs `./gradlew crap` on the fixture and
   asserts on console output and build success/failure for two thresholds.
-- Dogfood: apply `jacoco` and `crap4java` to this repo once the plugin exists.
+- Dogfood: apply `jacoco` and `crappyJava` to this repo once the plugin exists.
 
 ## Implementation order
 
@@ -135,7 +135,7 @@ Unicode, no ANSI. Method identity is fully qualified so an agent can jump to it.
 4. DONE 2026-09-14. `Crap`, `LambdaFolder`, `MethodCrap`, `Analysis` (gate = `maxCrap > threshold`), unit tests.
 5. DONE 2026-09-14. `TextReporter`, ApprovalTests-approved output for default/all/top/summary-only.
 6. DONE 2026-09-14. `cli` module, exit codes 0/1/2, tests.
-7. DONE 2026-09-14. `gradle-plugin`: extension `crap4java {}`, task `crap`, wired to `test` + `jacocoTestReport`,
+7. DONE 2026-09-14. `gradle-plugin`: extension `crappyJava {}`, task `crap`, wired to `test` + `jacocoTestReport`,
    configuration-cache compatible, eight TestKit tests (the end-to-end one needs Maven Central for JUnit)
    plus eleven in-process ProjectBuilder tests.
    Extension is a concrete class with `setThreshold(Number)` because Groovy literals arrive as Integer/BigDecimal
@@ -145,6 +145,10 @@ Unicode, no ANSI. Method identity is fully qualified so an agent can jump to it.
 8. DONE 2026-09-14. README.
 9. DONE 2026-09-14. Dogfood: every module applies `jacoco`; root task `crap` runs the CLI over the three
    module reports and is wired into `check`. The plugin cannot be applied to its own build, so the CLI is used.
+10. DONE 2026-09-14. Publishing: `core` publishes signed sources and Javadoc to Maven Central as
+    `com.larseckart:crappy-java-core`; the Gradle plugin publishes to the Plugin Portal as
+    `com.larseckart.crappy-java`. A release workflow waits for `crappy-java-core` to resolve from Maven
+    Central before publishing and smoke-testing the plugin.
 
 ## Review before first commit (2026-09-14)
 
@@ -164,7 +168,7 @@ regeneration task; fixture paths via system property; gitattributes/gitignore/gr
 - `--` terminator in the CLI for report paths starting with `-`.
 
 - TestKit runs the plugin inside a separate Gradle daemon, so those tests contribute no JaCoCo coverage.
-  Resolved for now by ProjectBuilder tests (`Crap4JavaPluginTest`, `CrapTaskTest`) that run in-process;
+  Resolved for now by ProjectBuilder tests (`CrappyJavaPluginTest`, `CrapTaskTest`) that run in-process;
   the dogfood gate went from max 42.0 to 20.0. Passing the agent into the TestKit daemon remains an option.
 
 - Lambda folding tiebreaker: in the fixture, each `lambda$map$N` carries the `line` of its enclosing
@@ -178,4 +182,3 @@ regeneration task; fixture paths via system property; gitattributes/gitignore/gr
 - `--changed` via git and JaCoCo's `sourcefile` element.
 - JSON output, HTML output.
 - Exclusion globs.
-- Publishing to the Gradle Plugin Portal under a real group id.

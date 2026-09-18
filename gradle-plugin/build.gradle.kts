@@ -1,6 +1,9 @@
+import org.gradle.plugin.compatibility.compatibility
+
 plugins {
     `java-gradle-plugin`
     jacoco
+    id("com.gradle.plugin-publish") version "2.2.1"
 }
 
 java {
@@ -20,12 +23,22 @@ dependencies {
 }
 
 gradlePlugin {
+    website.set("https://github.com/LarsEckart/crappy-java")
+    vcsUrl.set("https://github.com/LarsEckart/crappy-java.git")
+
     plugins {
-        create("crap4java") {
-            id = "crap4java"
-            implementationClass = "crap4java.gradle.Crap4JavaPlugin"
-            displayName = "crap4java"
+        create("crappyJava") {
+            id = "com.larseckart.crappy-java"
+            implementationClass = "crappyjava.gradle.CrappyJavaPlugin"
+            displayName = "crappy-java"
             description = "CRAP (Change Risk Anti-Patterns) report and quality gate computed from JaCoCo XML reports"
+            tags.set(listOf("crap", "jacoco", "coverage", "quality", "metrics"))
+
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
     }
 }
