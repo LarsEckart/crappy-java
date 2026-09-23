@@ -3,6 +3,7 @@ name: Release
 on:
   release:
     types: [published]
+  workflow_dispatch: # Preflight: build and check signatures without publishing.
 
 permissions:
   contents: read
@@ -28,7 +29,7 @@ jobs:
 
       - id: version
         env:
-          TAG_NAME: ${{ github.event.release.tag_name }}
+          TAG_NAME: ${{ github.event.release.tag_name || 'v0.0.0-signing-check' }}
         run: |
           version="${TAG_NAME#v}"
           if [[ -z "$version" || "$version" == *-SNAPSHOT ]]; then
@@ -40,6 +41,30 @@ jobs:
       - name: Build
         run: ./gradlew build -PreleaseVersion="${{ steps.version.outputs.value }}"
 
+      - name: Sign and check Maven artifacts
+        env:
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_IN_MEMORY_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_IN_MEMORY_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          ./gradlew :core:signMavenPublication -PreleaseVersion="${{ steps.version.outputs.value }}"
+          fingerprint=45353912409CF4BE37320C1FE012009D3EE97E82
+          for attempt in {1..10}; do
+            if curl --fail --silent --show-error --max-time 20 \
+              "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x$fingerprint" \
+              -o "$RUNNER_TEMP/release-public.asc"; then break; fi
+            echo "Public key not available yet (attempt $attempt/10)"
+            sleep 5
+          done
+          test "$(gpg --batch --show-keys --with-colons "$RUNNER_TEMP/release-public.asc" | awk -F: '$1=="fpr" {print $10; exit}')" = "$fingerprint"
+          gpg --batch --import "$RUNNER_TEMP/release-public.asc"
+          count=0
+          while IFS= read -r -d '' signature; do
+            gpg --batch --verify "$signature" "${signature%.asc}"
+            count=$((count + 1))
+          done < <(find core/build -name '*.asc' -type f -print0)
+          test "$count" -ge 5
+
       - name: Validate Plugin Portal publication
         env:
           GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
@@ -48,6 +73,7 @@ jobs:
 
   publish-core:
     needs: validate
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

@@ -145,19 +145,6 @@ the design decisions.
 
 ## Releasing
 
-Publish a GitHub release tagged `v<version>`. The release workflow builds the project, validates the
-Plugin Portal upload, publishes signed `crappy-java-core` artifacts to Maven Central, waits for them to resolve,
-then publishes and smoke-tests the plugin.
-
-Add these GitHub repository secrets before the first release:
-
-- `MAVEN_CENTRAL_USERNAME` and `MAVEN_CENTRAL_PASSWORD`: a Maven Central **user token**, not your
-  Central Portal sign-in.
-- `SIGNING_IN_MEMORY_KEY`: an ASCII-armored private PGP key from
-  `gpg --export-secret-keys --armor <key-id>`.
-- `SIGNING_IN_MEMORY_KEY_PASSWORD`: the private key passphrase.
-- `GRADLE_PUBLISH_KEY` and `GRADLE_PUBLISH_SECRET`: Gradle Plugin Portal API credentials.
-
-To repeat the final check after a Portal release, run
-`./scripts/smoke-released-plugin.sh <version>`. It creates a temporary Gradle project with no
-`pluginManagement` block, so it uses the default Plugin Portal resolution path.
+Create a GitHub release tagged `v<version>`. GitHub Actions publishes the core library to Maven
+Central, then the Gradle plugin to the Plugin Portal. See [Publishing](docs/publishing.md) for the
+one-time account setup, GitHub secrets, password-manager guidance, release flow, and smoke test.
