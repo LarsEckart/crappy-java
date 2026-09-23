@@ -1,3 +1,5 @@
+[![Certified Shovelware](https://justin.searls.co/img/shovelware.svg)](https://justin.searls.co/shovelware/)
+
 # crappy-java
 
 CRAP (Change Risk Anti-Patterns) analyser for JVM projects, computed entirely from JaCoCo XML reports.
